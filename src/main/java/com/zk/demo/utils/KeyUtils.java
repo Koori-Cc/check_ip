@@ -5,6 +5,8 @@ package com.zk.demo.utils;
  */
 public class KeyUtils {
 
+    public static final String DATA_XX = "XX";
+
     public static final String DATA_DEVICE = "data_device";
 
 }
