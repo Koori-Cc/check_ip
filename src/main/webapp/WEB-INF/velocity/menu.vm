@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link href="${rc.contextPath}/static/bootstrap_3.3.0/css/bootstrap.min.css" type="text/css" rel="stylesheet"/>
+    <link rel="stylesheet" href="${rc.contextPath}/static/bs_pagination/css/jquery.bs_pagination.min.css" type="text/css"/>
+    <script type="text/javascript" src="${rc.contextPath}/static/js/jquery-1.11.1-min.js"></script>
+    <script type="text/javascript" src="${rc.contextPath}/static/bootstrap_3.3.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="${rc.contextPath}/static/bs_pagination/js/jquery.bs_pagination.min.js"></script>
+    <script type="text/javascript" src="${rc.contextPath}/static/bs_pagination/js/localization/en.js"></script>
+</head>
+
+<script>
+    $(function() {
+
+        //----------------获取数据---------------------
+        $("#getDataBtn").click(function() {
+
+            $.ajax({
+                url:'${rc.contextPath}/device/getData.do',
+                type:'post',
+                beforeSend:function() {
+                    $("#getDataBtn").attr("disabled",true);
+                },
+                success:function(data) {
+                    if(data) {
+                        alert("数据获取成功");
+                    }else {
+                        alert("服务器正忙,请稍后重试~");
+                    }
+                },
+                complete: function () {
+                    $("#getDataBtn").attr("disabled",false);
+                }
+            });
+        });
+
+        //------------------更新数据----------------------
+        $("#updateDataBtn").click(function() {
+            $.ajax({
+                url:'${rc.contextPath}/device/updateData.do',
+                type:'post',
+                beforeSend:function() {
+                    $("#updateDataBtn").attr("disabled",true);
+                    $("#s_msg").html("正在测试连接,请勿进行其他操作");
+                },
+                success:function(data) {
+                    if(data == null) {
+                        alert("状态更新失败");
+                    }else {
+                        alert("更新成功!");
+                    }
+
+                },
+                complete: function () {
+                    $("#updateDataBtn").attr("disabled",false);
+                    $("#s_msg").html("");
+                }
+            });
+        });
+
+        //--------------------自动更新---------------------------
+        $("#autoUpdate").click(function() {
+            var time = $.trim($("#time").val());
+            if(time.length == 0) {
+                $("#s_msg").html("请输入自动更新的时间间隔");
+                return false;
+            }else  if(isNaN(time)) {
+                $("#s_msg").html("请输入数字");
+                return false;
+            }else if(time <= 0){
+                $("#s_msg").html("请输入正数");
+                return false;
+            }else {
+                $("#s_msg").html("");
+                $.ajax({
+                    url:'${rc.contextPath}/device/autoUpdateData.do',
+                    data:{
+                        time:time
+                    },
+                    success:function() {
+                        alert("已经启用自动更新");
+                    }
+                });
+            }
+
+        });
+
+
+        //------------------停止自动更新-----------------
+       $("#cancleTimer").click(function() {
+           $.ajax({
+                url:'${rc.contextPath}/device/cancleTimer.do',
+                data:{},
+                success:function() {
+                    alert("已经停止自动更新");
+                }
+            });
+        });
+
+
+    });//-------------jQuery启动函数结束-------------------------
+
+
+
+</script>
+
+<body>
+
+
+<table  align="center" width="60%" border="1px" cellspacing="0" cellpadding="0">
+    <h3 align="center" style="padding: 20px">菜单页面</h3>
+    <thead align="center">
+        <tr style="height: 80px" align="center">
+            <td width="25%">操作一</td>
+            <td width="25%">操作二</td>
+            <td width="50%">操作三</td>
+        </tr>
+    </thead>
+    <tbody align="center">
+        <tr style="height: 80px" align="center">
+            <td><input id="getDataBtn" type="button" value="获取数据"></td>
+            <td><input id="updateDataBtn" type="button" value="更新数据"></td>
+            <td>
+                每隔<input id="time" type="text"/>分钟&nbsp;&nbsp;
+                <input id="autoUpdate" type="button" value="自动更新">
+                <input id="cancleTimer" type="button" value="停止自动更新">
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<div style="padding: 20px" align="center"><span id="s_msg" style="color: #2aabd2;"></span></div>
+
+
+
+
+
+
+
+</body>
+</html>

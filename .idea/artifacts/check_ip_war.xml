@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="check_ip:war">
+    <output-path>$PROJECT_DIR$/target</output-path>
+    <root id="archive" name="check_ip.war">
+      <element id="artifact" artifact-name="check_ip:war exploded" />
+    </root>
+  </artifact>
+</component>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zk.demo.daos.DeviceDao">
+
+    <resultMap type="Device" id="deviceResultMap">
+        <!-- 用id属性来映射主键字段 -->
+        <id property="id" column="ID"/>
+        <!-- 用result属性来映射非主键字段 -->
+        <result property="ip" column="IP_ADDRESS"/>
+        <result property="port" column="PORT"/>
+        <result property="status" column="STATUS"/>
+    </resultMap>
+
+    <select id="queryAllData" resultMap="deviceResultMap">
+        SELECT * from TBL_DEVICE_A
+    </select>
+
+    <update id="updateStatus"  parameterType="java.util.List">
+        update
+          TBL_DEVICE_A
+        set
+          STATUS =
+        <foreach collection="list" item="item" index="index" open="case id" close="end" separator=" ">
+            when
+              #{item.id}
+            then
+              #{item.status}
+        </foreach>
+        where id in
+        <foreach collection="list" item="item" index="index"
+                 separator="," open="(" close=")">
+            #{item.id}
+        </foreach>
+    </update>
+
+
+
+
+
+
+
+
+</mapper>
