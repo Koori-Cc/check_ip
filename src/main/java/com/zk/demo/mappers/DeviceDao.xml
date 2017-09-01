@@ -3,44 +3,42 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.zk.demo.daos.DeviceDao">
+<mapper namespace="com.zk.demo.daos.DeviceDao" >
 
-    <resultMap type="Device" id="deviceResultMap">
-        <!-- 用id属性来映射主键字段 -->
+    <!--<resultMap type="Device" id="deviceResultMap">
+        &lt;!&ndash; 用id属性来映射主键字段 &ndash;&gt;
         <id property="id" column="ID"/>
-        <!-- 用result属性来映射非主键字段 -->
-        <result property="ip" column="IP_ADDRESS"/>
-        <result property="port" column="PORT"/>
-        <result property="status" column="STATUS"/>
-    </resultMap>
+        &lt;!&ndash; 用result属性来映射非主键字段 &ndash;&gt;
+        <result property="ip" column="DEVICE_IP"/>
+        <result property="port" column="DEVICE_PORT"/>
+        <result property="status" column="DEVICE_STATUS"/>
+    </resultMap>-->
 
-    <select id="queryAllData" resultMap="deviceResultMap">
-        SELECT * from TBL_DEVICE_A
+    <select id="queryAllData" resultType="Device" parameterType="Table" statementType="STATEMENT">
+          select
+            ${field_id}         as "id",
+            ${field_ip}         as "ip",
+            ${field_port}       as "port",
+            ${field_status}     as "status"
+          from ${tableName}
     </select>
 
-    <update id="updateStatus"  parameterType="java.util.List">
+    <update id="updateStatus" statementType="STATEMENT">
         update
-          TBL_DEVICE_A
+          ${table.tableName}
         set
-          STATUS =
-        <foreach collection="list" item="item" index="index" open="case id" close="end" separator=" ">
+        ${table.field_status} =
+        <foreach collection="objectList" item="item" index="index" open="case id" close="end" separator=" ">
             when
-              #{item.id}
+            '${item.id}'
             then
-              #{item.status}
+            ${item.status}
         </foreach>
-        where id in
-        <foreach collection="list" item="item" index="index"
-                 separator="," open="(" close=")">
-            #{item.id}
+        where ${table.field_id} in
+        <foreach collection="objectList" item="item" index="index" separator="," open="(" close=")">
+            '${item.id}'
         </foreach>
+
     </update>
-
-
-
-
-
-
-
 
 </mapper>

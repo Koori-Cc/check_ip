@@ -13,11 +13,17 @@
 <script>
     $(function() {
 
+        //-----------------------获取表的名称----------------
+        getTableName();
+
+
         //----------------获取数据---------------------
         $("#getDataBtn").click(function() {
-
             $.ajax({
                 url:'${rc.contextPath}/device/getData.do',
+                data:{
+                  tableName:$("#tableName").val()
+                },
                 type:'post',
                 beforeSend:function() {
                     $("#getDataBtn").attr("disabled",true);
@@ -40,17 +46,23 @@
             $.ajax({
                 url:'${rc.contextPath}/device/updateData.do',
                 type:'post',
+                data:{
+                    tableName:$("#tableName").val()
+                },
                 beforeSend:function() {
                     $("#updateDataBtn").attr("disabled",true);
                     $("#s_msg").html("正在测试连接,请勿进行其他操作");
                 },
                 success:function(data) {
-                    if(data == null) {
-                        alert("状态更新失败");
+                    if(data == -1) {
+                        alert("请先进行数据的初始化!");
+                    }else if(data == null) {
+                        alert("状态更新失败,请重试");
+                    }else if(data == 0){
+                        alert("数据状态未发生变化");
                     }else {
-                        alert("更新成功!");
+                        alert("更新成功!共更新"+data+"条数据");
                     }
-
                 },
                 complete: function () {
                     $("#updateDataBtn").attr("disabled",false);
@@ -76,7 +88,8 @@
                 $.ajax({
                     url:'${rc.contextPath}/device/autoUpdateData.do',
                     data:{
-                        time:time
+                        time:time,
+                        tableName:$("#tableName").val()
                     },
                     success:function() {
                         alert("已经启用自动更新");
@@ -94,6 +107,7 @@
                 data:{},
                 success:function() {
                     alert("已经停止自动更新");
+                    $("#time").val("")
                 }
             });
         });
@@ -103,22 +117,43 @@
 
 
 
+    function getTableName() {
+        $.ajax({
+            url:'${rc.contextPath}/device/getTableName.do',
+            type:'post',
+            dataType:'json',
+            success:function (data) {
+                var str = '';
+                if(data == null) {
+                    alert("获取表名失败!");
+                }else {
+                    $.each(data,function(i,d) {
+                        str += '<option value="'+d+'">'+ d +'</option>';
+                    });
+                    $("#tableName").html(str);
+                }
+            }
+        });
+    }
+
 </script>
 
 <body>
 
 
-<table  align="center" width="60%" border="1px" cellspacing="0" cellpadding="0">
+<table  align="center" width="75%" border="1px" cellspacing="0" cellpadding="0">
     <h3 align="center" style="padding: 20px">菜单页面</h3>
     <thead align="center">
         <tr style="height: 80px" align="center">
-            <td width="25%">操作一</td>
-            <td width="25%">操作二</td>
-            <td width="50%">操作三</td>
+            <td width="20%">选择表</td>
+            <td width="20%">操作一</td>
+            <td width="20%">操作二</td>
+            <td width="40%">操作三</td>
         </tr>
     </thead>
     <tbody align="center">
         <tr style="height: 80px" align="center">
+            <td><select id="tableName"></select></td>
             <td><input id="getDataBtn" type="button" value="获取数据"></td>
             <td><input id="updateDataBtn" type="button" value="更新数据"></td>
             <td>
@@ -131,12 +166,6 @@
 </table>
 
 <div style="padding: 20px" align="center"><span id="s_msg" style="color: #2aabd2;"></span></div>
-
-
-
-
-
-
 
 </body>
 </html>

@@ -6,6 +6,7 @@ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
 <configuration>
 	<typeAliases>
 		<typeAlias type="com.zk.demo.entities.Device" alias="Device"/>
+		<typeAlias type="com.zk.demo.entities.Table" alias="Table"/>
 	</typeAliases>
 	<mappers>
 		<mapper resource="com/zk/demo/mappers/DeviceDao.xml"/>

@@ -1,6 +1,7 @@
 package com.zk.demo.services;
 
 import com.zk.demo.entities.Device;
+import com.zk.demo.entities.Table;
 
 import java.io.IOException;
 import java.util.List;
@@ -10,11 +11,11 @@ import java.util.List;
  */
 public interface DeviceService {
 
-    boolean getData();
+    boolean getData(Table table);
 
 
-    Integer updateStatus();
+    Integer updateStatus(Table table);
 
-
+    List<String> getTableName();
 
 }
