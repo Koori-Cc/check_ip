@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <title>连接测试</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <link href="${rc.contextPath}/static/bootstrap_3.3.0/css/bootstrap.min.css" type="text/css" rel="stylesheet"/>
     <link rel="stylesheet" href="${rc.contextPath}/static/bs_pagination/css/jquery.bs_pagination.min.css" type="text/css"/>
@@ -11,34 +12,25 @@
 </head>
 
 <script>
+
+    //自动更新状态的标记变量
+    var auto_flag = 0;
+
     $(function() {
 
         //-----------------------获取表的名称----------------
         getTableName();
 
+        //--------------------------下拉选项改变----------------
+        $("#tableName").change(function() {
+            initTableInfo();
+        });
+
+
 
         //----------------获取数据---------------------
         $("#getDataBtn").click(function() {
-            $.ajax({
-                url:'${rc.contextPath}/device/getData.do',
-                data:{
-                  tableName:$("#tableName").val()
-                },
-                type:'post',
-                beforeSend:function() {
-                    $("#getDataBtn").attr("disabled",true);
-                },
-                success:function(data) {
-                    if(data) {
-                        alert("数据获取成功");
-                    }else {
-                        alert("服务器正忙,请稍后重试~");
-                    }
-                },
-                complete: function () {
-                    $("#getDataBtn").attr("disabled",false);
-                }
-            });
+            initTableInfo();
         });
 
         //------------------更新数据----------------------
@@ -89,10 +81,15 @@
                     url:'${rc.contextPath}/device/autoUpdateData.do',
                     data:{
                         time:time,
-                        tableName:$("#tableName").val()
+                        tableName:$("#tableName").val(),
+                        auto_flag:auto_flag
                     },
-                    success:function() {
-                        alert("已经启用自动更新");
+                    success:function(data) {
+                        $("#s_msg").html("已经启用自动更新");
+                        if(data == 1) {
+                            $("#autoUpdate").attr("disabled",true);
+                            auto_flag = data;
+                        }
                     }
                 });
             }
@@ -102,12 +99,22 @@
 
         //------------------停止自动更新-----------------
        $("#cancleTimer").click(function() {
+           if(auto_flag == 0) {
+                return;
+           }
            $.ajax({
                 url:'${rc.contextPath}/device/cancleTimer.do',
-                data:{},
-                success:function() {
+                data:{
+                    auto_flag:auto_flag
+                },
+                success:function(data) {
                     alert("已经停止自动更新");
-                    $("#time").val("")
+                    $("#time").val("");
+                    $("#s_msg").html("");
+                    if(data == 0) {
+                        auto_flag = data;
+                        $("#autoUpdate").attr("disabled",false);
+                    }
                 }
             });
         });
@@ -132,6 +139,29 @@
                     });
                     $("#tableName").html(str);
                 }
+            }
+        });
+    }
+
+    function initTableInfo() {
+        $.ajax({
+            url:'${rc.contextPath}/device/getData.do',
+            data:{
+                tableName:$("#tableName").val()
+            },
+            type:'post',
+            beforeSend:function() {
+                $("#getDataBtn").attr("disabled",true);
+            },
+            success:function(data) {
+                if(data) {
+                    alert("数据获取成功");
+                }else {
+                    alert("服务器正忙,请稍后重试~");
+                }
+            },
+            complete: function () {
+                $("#getDataBtn").attr("disabled",false);
             }
         });
     }

@@ -7,6 +7,7 @@ import com.zk.demo.daos.DeviceDao;
 import com.zk.demo.entities.Device;
 import com.zk.demo.entities.Table;
 import com.zk.demo.services.DeviceService;
+import com.zk.demo.utils.DeviceTimerTask;
 import com.zk.demo.utils.LoggerUtils;
 import com.zk.demo.utils.TelnetUtils;
 import org.apache.commons.collections.map.HashedMap;
@@ -15,10 +16,7 @@ import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -32,30 +30,49 @@ public class DeviceServiceImpl implements DeviceService{
 
     private Logger logger = Logger.getLogger("DeviceServiceImpl");
 
+    private static ResourceBundle bundle = ResourceBundle.getBundle("config");
+
     //定义Jedis成员变量
     private static Jedis jedis;
 
     //redis存储的key
     private static String key;
 
-    private static String tableName;
+    private static String totalTableName;
+
+    //定时器
+    private Timer timer;
 
     /**
      * 类加载的时候初始化redis参数
      */
     static {
-        ResourceBundle bundle = ResourceBundle.getBundle("config");
         String redis_ip = bundle.getString("redis.url");
         String s_port = bundle.getString("redis.port");
         Integer redis_port = Integer.parseInt(s_port);
-
         //jedis初始化完成
         jedis = new Jedis(redis_ip,redis_port);
-        key = bundle.getString("redis.key");
-        tableName = bundle.getString("table.total.name");
+        //获取所有表的名称
+        totalTableName = bundle.getString("table.total.name");
+    }
+
+    //初始化的方法
+    private static void init(Table table) {
+        //用表名当作键来区分不同表的数据
+        key = bundle.getString(table.getTableName());
+
+        table.setField_id(bundle.getString(table.getTableName() + ".id"));
+        table.setField_ip(bundle.getString(table.getTableName() + ".ip"));
+        table.setField_port(bundle.getString(table.getTableName() + ".port"));
+        table.setField_status(bundle.getString(table.getTableName() + ".status"));
+
     }
 
     public boolean getData(Table table) {
+
+        //初始化table
+        init(table);
+
         boolean result;
         try {
             List<Device> list = deviceDao.queryAllData(table);
@@ -76,6 +93,9 @@ public class DeviceServiceImpl implements DeviceService{
     }
 
     public Integer updateStatus(Table table) {
+
+        init(table);
+
         String json = jedis.get(key);
         if(json == null) {   //未进行数据的初始化
             return -1;
@@ -85,8 +105,10 @@ public class DeviceServiceImpl implements DeviceService{
             ObjectMapper mapper = new ObjectMapper();
             //数据库查询得到的list
             List<Device> db_list = mapper.readValue(json, new TypeReference<List<Device>>() {});
+            //检测数据状态,并返回一个改变状态之后的集合
             List<Device> temp_list = TelnetUtils.checkDeviceConnection(db_list);
-            List<Object> update_list = new ArrayList<Object>();   //真正执行更新操作的list集合
+            //真正执行更新操作的list集合
+            List<Object> update_list = new ArrayList<Object>();
             for (int i = 0;i < db_list.size();i++) {
 
                 if(db_list.get(i).getStatus() != temp_list.get(i).getStatus()) {   //说明状态值发生改变
@@ -124,13 +146,24 @@ public class DeviceServiceImpl implements DeviceService{
         return result;
     }
 
-
     public List<String> getTableName() {
         List<String> list = new ArrayList<String>();
-        String[] arr = tableName.split(",");
+        String[] arr = totalTableName.split(",");
         for (String name: arr ) {
             list.add(name);
         }
         return list;
+    }
+
+    public void startAutoUpdate(Integer time, Table table) {
+        Timer timer = new Timer();   //定时器销毁就不能用了,要启用一个新的定时器
+        this.timer = timer;
+        init(table);
+        Integer msec = time * 60 * 1000;
+        timer.schedule(new DeviceTimerTask(this,table) , new Date() , msec);
+    }
+
+    public void closeAutoUpdate() {
+        timer.cancel();
     }
 }

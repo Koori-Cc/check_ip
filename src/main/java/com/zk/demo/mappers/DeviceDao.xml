@@ -27,8 +27,8 @@
         update
           ${table.tableName}
         set
-        ${table.field_status} =
-        <foreach collection="objectList" item="item" index="index" open="case id" close="end" separator=" ">
+        ${table.field_status} = case ${table.field_id}
+        <foreach collection="objectList" item="item" index="index" open=" " close="end" separator=" ">
             when
             '${item.id}'
             then
@@ -38,7 +38,6 @@
         <foreach collection="objectList" item="item" index="index" separator="," open="(" close=")">
             '${item.id}'
         </foreach>
-
     </update>
 
 </mapper>

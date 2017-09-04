@@ -9,11 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import java.util.Date;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+
 import java.util.logging.Logger;
 
 /**
@@ -25,7 +22,7 @@ public class DeviceController {
 
     private Logger logger = Logger.getLogger("DeviceController");
 
-    private final Timer timer = new Timer();
+
 
     @Autowired
     private DeviceService deviceService;
@@ -51,19 +48,22 @@ public class DeviceController {
 
     @RequestMapping("/autoUpdateData.do")
     @ResponseBody
-    public void autoUpdateData(Integer time,final Table table) {
-        Integer msec = time * 60 * 1000;
-        timer.schedule(new TimerTask() {
-            public void run() {
-                deviceService.updateStatus(table);
-            }
-        } , new Date() , msec);
+    public Object autoUpdateData(Integer time,Table table,Integer auto_flag) {
+        deviceService.startAutoUpdate(time,table);
+        if(auto_flag == 0) {   //说明之前未进行自动更新
+            auto_flag = 1;
+        }
+        return auto_flag;
     }
 
     @RequestMapping("/cancleTimer.do")
     @ResponseBody
-    public void cancleTimer() {
-        timer.cancel(); // 定时器销毁
+    public Object cancleTimer(Integer auto_flag) {
+        deviceService.closeAutoUpdate();
+        if(auto_flag == 1) {
+            auto_flag = 0;
+        }
+        return auto_flag;
     }
 
     @RequestMapping("/getTableName.do")
@@ -79,6 +79,4 @@ public class DeviceController {
         }
         return json;
     }
-
-
 }

@@ -9,17 +9,18 @@ import java.util.ResourceBundle;
 public class Table {
     private String tableName;
 
-    private static String field_id;
-    private static String field_ip;
-    private static String field_port;
-    private static String field_status;
+    private String field_id;
+    private String field_ip;
+    private String field_port;
+    private String field_status;
+    private String field_type;
 
-    static {
-        ResourceBundle bundle = ResourceBundle.getBundle("config");
-        field_id = bundle.getString("table.id");
-        field_ip = bundle.getString("table.ip");
-        field_port = bundle.getString("table.port");
-        field_status = bundle.getString("table.status");
+    public String getField_type() {
+        return field_type;
+    }
+
+    public void setField_type(String field_type) {
+        this.field_type = field_type;
     }
 
     public String getTableName() {
@@ -46,12 +47,12 @@ public class Table {
         this.field_ip = field_ip;
     }
 
-    public static String getField_port() {
+    public String getField_port() {
         return field_port;
     }
 
-    public static void setField_port(String field_port) {
-        Table.field_port = field_port;
+    public void setField_port(String field_port) {
+        this.field_port = field_port;
     }
 
     public String getField_status() {

@@ -18,4 +18,8 @@ public interface DeviceService {
 
     List<String> getTableName();
 
+    void startAutoUpdate(Integer time,Table table);
+
+    void closeAutoUpdate();
+
 }
