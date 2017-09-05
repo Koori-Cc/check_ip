@@ -33,7 +33,7 @@ public class TelnetUtils {
     public static boolean telnet(String ip,int port) {
         try{
             TelnetClient telnet = new TelnetClient("vt200");
-            telnet.setConnectTimeout(3000);// 连接超时3秒
+            telnet.setConnectTimeout(1000);// 连接超时1秒
             //telnet.setDefaultTimeout(3000);
             telnet.connect(ip, port);
             return true;
