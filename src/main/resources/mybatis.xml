@@ -10,5 +10,6 @@ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
 	</typeAliases>
 	<mappers>
 		<mapper resource="com/zk/demo/mappers/DeviceDao.xml"/>
+		<mapper resource="com/zk/demo/mappers/TableDao.xml"/>
 	</mappers>
 </configuration>

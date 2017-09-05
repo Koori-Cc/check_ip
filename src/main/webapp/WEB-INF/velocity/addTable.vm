@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>添加新表</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <link href="${rc.contextPath}/static/bootstrap_3.3.0/css/bootstrap.min.css" type="text/css" rel="stylesheet"/>
+    <link rel="stylesheet" href="${rc.contextPath}/static/bs_pagination/css/jquery.bs_pagination.min.css" type="text/css"/>
+    <script type="text/javascript" src="${rc.contextPath}/static/js/jquery-1.11.1-min.js"></script>
+    <script type="text/javascript" src="${rc.contextPath}/static/bootstrap_3.3.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="${rc.contextPath}/static/bs_pagination/js/jquery.bs_pagination.min.js"></script>
+    <script type="text/javascript" src="${rc.contextPath}/static/bs_pagination/js/localization/en.js"></script>
+</head>
+<script>
+
+    $(function() {
+
+
+        $("#addBtn").click(function() {
+            //验证
+
+            $("#tableForm").submit();
+
+        });
+
+
+    });//-----------------jQuery启动函数结束----------------------
+
+</script>
+
+<body>
+
+    <div align="center">
+        <h2>添加新表</h2>
+    </div>
+    <div align="center">
+        <form id="tableForm" action="${rc.contextPath}/table/addTable.do" method="post">
+            表名:<input id="tableName" name="tableName"/><br/><br/>
+            主键字段:<input id="field_id" name="field_id"/><br/><br/>
+            IP字段:<input id="field_ip" name="field_ip"/><br/><br/>
+            端口字段:<input id="field_port" name="field_port"/><br/><br/>
+            状态字段:<input id="field_status" name="field_status"/><br/><br/>
+            类型字段:<input id="field_type" name="field_type"/><br/><br/>
+            <input id="addBtn" value="添加" type="button"/><br/><br/>
+        </form>
+    </div>
+
+</body>
+</html>

@@ -1,15 +1,12 @@
 package com.zk.demo.controllers;
 
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.zk.demo.entities.Table;
 import com.zk.demo.services.DeviceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import java.util.List;
+
 
 import java.util.logging.Logger;
 
@@ -35,21 +32,23 @@ public class DeviceController {
 
     @RequestMapping("/getData.do")
     @ResponseBody
-    public Object getData(Table table) {
-        return deviceService.getData(table);
+    public Object getData( @RequestParam String[] ids) {
+        logger.info(ids.toString());
+        return deviceService.getData(ids);
     }
 
     @RequestMapping("/updateData.do")
     @ResponseBody
-    public Object updateData(Table table) {
-        Integer result = deviceService.updateStatus(table);
+    public Object updateData(@RequestParam String[] ids) {
+        Integer result = deviceService.updateStatus(ids);
         return result;
     }
 
     @RequestMapping("/autoUpdateData.do")
     @ResponseBody
-    public Object autoUpdateData(Integer time,Table table,Integer auto_flag) {
-        deviceService.startAutoUpdate(time,table);
+    public Object autoUpdateData(Integer time,String id,Integer auto_flag) {
+        String[] ids = id.split(",");
+        deviceService.startAutoUpdate(time,ids);
         if(auto_flag == 0) {   //说明之前未进行自动更新
             auto_flag = 1;
         }
@@ -66,17 +65,4 @@ public class DeviceController {
         return auto_flag;
     }
 
-    @RequestMapping("/getTableName.do")
-    @ResponseBody
-    public String getTableName() {
-        ObjectMapper mapper = new ObjectMapper();
-        List<String> list = deviceService.getTableName();
-        String json = null;
-        try {
-            json = mapper.writeValueAsString(list);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-        return json;
-    }
 }

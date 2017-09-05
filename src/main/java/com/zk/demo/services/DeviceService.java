@@ -11,14 +11,12 @@ import java.util.List;
  */
 public interface DeviceService {
 
-    boolean getData(Table table);
+    boolean getData(String[] ids);
 
 
-    Integer updateStatus(Table table);
+    Integer updateStatus(String[] ids);
 
-    List<String> getTableName();
-
-    void startAutoUpdate(Integer time,Table table);
+    void startAutoUpdate(Integer time,String[] ids);
 
     void closeAutoUpdate();
 

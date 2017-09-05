@@ -3,6 +3,7 @@ package com.zk.demo.utils;
 import com.zk.demo.entities.Table;
 import com.zk.demo.services.DeviceService;
 
+import java.util.Map;
 import java.util.TimerTask;
 
 /**
@@ -12,17 +13,15 @@ public class DeviceTimerTask extends TimerTask {
 
 
     private DeviceService deviceService;
-    private Table table;
+    private String[] ids;
 
-    public DeviceTimerTask() {}
-
-    public DeviceTimerTask(DeviceService deviceService,Table table) {
+    public DeviceTimerTask(DeviceService deviceService,String[] ids) {
         this.deviceService=deviceService;
-        this.table=table;
+        this.ids=ids;
     }
 
     public void run() {
-        deviceService.updateStatus(table);
+        deviceService.updateStatus(ids);
     }
 
 }

@@ -18,29 +18,60 @@
 
     $(function() {
 
-        //-----------------------获取表的名称----------------
-        getTableName();
-
-        //--------------------------下拉选项改变----------------
-        $("#tableName").change(function() {
-            initTableInfo();
-        });
-
-
+        //---------------------获取表的列表--------------------
+        getTableList();
 
         //----------------获取数据---------------------
         $("#getDataBtn").click(function() {
-            initTableInfo();
+
+            if($(".selectClass:checked").length == 0) {
+                alert("请选中需要操作的数据!");
+                return false;
+            }
+
+            var $obj = $(".selectClass:checked");
+            var str = '';
+            $.each($obj,function() {
+                var id = $(this).attr("s_id");
+                str += 'ids='+id+'&';
+            });
+
+            $.ajax({
+                url:'${rc.contextPath}/device/getData.do',
+                data:str,
+                type:'post',
+                beforeSend:function() {
+                    $("#getDataBtn").attr("disabled",true);
+                },
+                success:function(data) {
+                    if(data) {
+                        alert("数据获取成功");
+                    }else {
+                        alert("服务器正忙,请稍后重试~");
+                    }
+                },
+                complete: function () {
+                    $("#getDataBtn").attr("disabled",false);
+                }
+            });
         });
 
         //------------------更新数据----------------------
         $("#updateDataBtn").click(function() {
+            if($(".selectClass:checked").length == 0) {
+                alert("请选中需要操作的数据!");
+                return false;
+            }
+            var $obj = $(".selectClass:checked");
+            var str = '';
+            $.each($obj,function() {
+                var id = $(this).attr("s_id");
+                str += 'ids='+id+'&';
+            });
             $.ajax({
                 url:'${rc.contextPath}/device/updateData.do',
                 type:'post',
-                data:{
-                    tableName:$("#tableName").val()
-                },
+                data:str,
                 beforeSend:function() {
                     $("#updateDataBtn").attr("disabled",true);
                     $("#s_msg").html("正在测试连接,请勿进行其他操作");
@@ -65,6 +96,23 @@
 
         //--------------------自动更新---------------------------
         $("#autoUpdate").click(function() {
+
+            if($(".selectClass:checked").length == 0) {
+                alert("请选中需要操作的数据!");
+                return false;
+            }
+
+            var $obj = $(".selectClass:checked");
+            var str = '';
+            $.each($obj,function(i) {
+                var id = $(this).attr("s_id");
+                if(i == $(".selectClass:checked").size() - 1) {
+                    str += id;
+                }else {
+                    str += id + ",";
+                }
+            });
+
             var time = $.trim($("#time").val());
             if(time.length == 0) {
                 $("#s_msg").html("请输入自动更新的时间间隔");
@@ -81,7 +129,7 @@
                     url:'${rc.contextPath}/device/autoUpdateData.do',
                     data:{
                         time:time,
-                        tableName:$("#tableName").val(),
+                        id:str,
                         auto_flag:auto_flag
                     },
                     success:function(data) {
@@ -96,10 +144,11 @@
 
         });
 
-
         //------------------停止自动更新-----------------
        $("#cancleTimer").click(function() {
            if(auto_flag == 0) {
+               $("#time").val("");
+               $("#s_msg").html("");
                 return;
            }
            $.ajax({
@@ -119,83 +168,124 @@
             });
         });
 
+        //--------------------添加新的表--------------------
+        $("#addTable").click(function() {
+            window.location="${rc.contextPath}/table/toAddTable.do";
+        });
+
+        //-----------------------修改表的内容------------------
+        $("#tableList").on("click",".updateClass",function() {
+            var id = $(this).attr("u_id");
+            window.location="${rc.contextPath}/table/toUpdateTable.do?id="+id;
+        });
+
+        //-------------------------删除表的内容------------------------
+        $("#tableList").on("click",".delClass",function() {
+            var id = $(this).attr("d_id");
+            $.ajax({
+                url:'${rc.contextPath}/table/deleteTable.do',
+                data:{
+                    id:id
+                },
+                type:'post',
+                success:function(data) {
+                    if(data == 1) {
+                        $("#"+id).remove();
+                    }else {
+                        alert("删除失败,请重试");
+                    }
+                }
+            });
+        });
+
+        //----------------------全选的方法--------------------
+        $("#selectAll").bind("click",function() {
+            var flag = $("#selectAll").prop("checked");
+            $.each($(".selectClass"),function() {
+                this.checked = flag;
+            });
+        });
+        //--------------------------------------
+        $("#tableList").on("click", ".selectClass",function() {
+            //选中的个数等于每页显示的个数时,挑中全选的按钮
+            if($(".selectClass:checked").length == $("#tableList input[class='selectClass']").length) {
+                $("#selectAll").prop("checked",true);
+            }else {
+                $("#selectAll").prop("checked",false);
+            }
+        });
+
+        //------------------查看详情------------------
+        $("#tableList").on("click",".detailClass",function() {
+            var id = $(this).attr("de_id");
+            window.location="${rc.contextPath}/table/toDetail.do?id="+id;
+        });
+
 
     });//-------------jQuery启动函数结束-------------------------
 
 
-
-    function getTableName() {
+    //------------------获取数据库表的列表-------------------
+    function getTableList() {
         $.ajax({
-            url:'${rc.contextPath}/device/getTableName.do',
+            url:'${rc.contextPath}/table/getTableList.do',
             type:'post',
             dataType:'json',
-            success:function (data) {
+            success:function(data) {
                 var str = '';
-                if(data == null) {
-                    alert("获取表名失败!");
-                }else {
-                    $.each(data,function(i,d) {
-                        str += '<option value="'+d+'">'+ d +'</option>';
-                    });
-                    $("#tableName").html(str);
-                }
+                $.each(data,function(i,t) {
+                    str += '<tr style="height: 35px" align="center" id='+t.id+'>';
+                    str += '<td width="10%"><input class="selectClass" s_id="'+t.id+'" type="checkbox"></td>';
+                    str += '<td width="30%"><a href="javascript:void(0)" class="detailClass" de_id="'+t.id+'">'+t.tableName+'</a></td>';
+                    str += '<td width="30%"><input class="updateClass" u_id="'+t.id+'" type="button" value="修改"/></td>';
+                    str += '<td width="30%"><input class="delClass" d_id="'+t.id+'" type="button" value="删除"/></td>';
+                    str += '</tr>';
+                });
+                $("#tableList").html(str);
             }
         });
     }
 
-    function initTableInfo() {
-        $.ajax({
-            url:'${rc.contextPath}/device/getData.do',
-            data:{
-                tableName:$("#tableName").val()
-            },
-            type:'post',
-            beforeSend:function() {
-                $("#getDataBtn").attr("disabled",true);
-            },
-            success:function(data) {
-                if(data) {
-                    alert("数据获取成功");
-                }else {
-                    alert("服务器正忙,请稍后重试~");
-                }
-            },
-            complete: function () {
-                $("#getDataBtn").attr("disabled",false);
-            }
-        });
-    }
 
 </script>
 
 <body>
 
+    <table  align="center" width="60%" border="1px" cellspacing="0" cellpadding="0">
+        <h3 align="center" style="padding: 20px">数据库列表</h3>
 
-<table  align="center" width="75%" border="1px" cellspacing="0" cellpadding="0">
-    <h3 align="center" style="padding: 20px">菜单页面</h3>
-    <thead align="center">
-        <tr style="height: 80px" align="center">
-            <td width="20%">选择表</td>
-            <td width="20%">操作一</td>
-            <td width="20%">操作二</td>
-            <td width="40%">操作三</td>
-        </tr>
-    </thead>
-    <tbody align="center">
-        <tr style="height: 80px" align="center">
-            <td><select id="tableName"></select></td>
-            <td><input id="getDataBtn" type="button" value="获取数据"></td>
-            <td><input id="updateDataBtn" type="button" value="更新数据"></td>
-            <td>
-                每隔<input id="time" type="text"/>分钟&nbsp;&nbsp;
-                <input id="autoUpdate" type="button" value="自动更新">
-                <input id="cancleTimer" type="button" value="停止自动更新">
-            </td>
-        </tr>
-    </tbody>
-</table>
+        <div align="center" style="padding-bottom: 20px">
+            <input id="addTable" type="button" value="添加新表">
+        </div>
 
-<div style="padding: 20px" align="center"><span id="s_msg" style="color: #2aabd2;"></span></div>
+        <thead align="center">
+            <tr style="height: 40px" align="center">
+                <td width="10%"><input id="selectAll" type="checkbox"></td>
+                <td width="30%">表名称</td>
+                <td width="30%">修改</td>
+                <td width="30%">删除</td>
+            </tr>
+        </thead>
+
+        <tbody align="center" id="tableList">
+
+        </tbody>
+
+    </table>
+
+    <div align="center" style="padding: 20px">
+        <input id="getDataBtn" type="button" value="获取数据">&nbsp;&nbsp;
+        <input id="updateDataBtn" type="button" value="更新数据">
+    </div>
+
+    <div align="center" style="padding-bottom: 20px">
+        每隔<input id="time" type="text"/>分钟&nbsp;&nbsp;
+        <input id="autoUpdate" type="button" value="自动更新">&nbsp;&nbsp;
+        <input id="cancleTimer" type="button" value="停止自动更新">
+    </div>
+
+    <div align="center"><span id="s_msg" style="color: #2aabd2;"></span></div>
 
 </body>
+
 </html>

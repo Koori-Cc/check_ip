@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>详情表</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+
+<body>
+
+    <div align="center">
+        <h2>详情表</h2>
+    </div>
+
+    <div align="center">
+        表名:$!{table.tableName}<br/><br/>
+        主键字段:$!{table.field_id}<br/><br/>
+        IP字段:$!{table.field_ip}<br/><br/>
+        端口字段:$!{table.field_port}<br/><br/>
+        状态字段:$!{table.field_status}<br/><br/>
+        类型字段:$!{table.field_type}<br/><br/>
+    </div>
+
+</body>
+</html>

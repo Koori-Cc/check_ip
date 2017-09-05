@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.zk.demo.daos.TableDao" >
+
+    <insert id="insertTable">
+        INSERT INTO
+          TBL_TABLE_INFO (ID,TABLENAME,FIELD_ID,FIELD_IP,FIELD_PORT,FIELD_STATUS,FIELD_TYPE)
+        VALUES
+          (#{id},#{tableName},#{field_id},#{field_ip},#{field_port},#{field_status},#{field_type})
+    </insert>
+
+    <select id="queryTableList" resultType="Table">
+        SELECT * FROM TBL_TABLE_INFO
+    </select>
+
+
+    <select id="queryTableById" resultType="Table">
+        SELECT * FROM TBL_TABLE_INFO WHERE ID=#{id}
+    </select>
+
+    <update id="updateTable">
+        UPDATE
+          TBL_TABLE_INFO
+        SET
+          TABLENAME=#{tableName},FIELD_ID=#{field_id},FIELD_IP=#{field_ip},FIELD_PORT=#{field_port},FIELD_STATUS=#{field_status},FIELD_TYPE=#{field_type}
+        WHERE
+          ID=#{id,jdbcType=CHAR}
+    </update>
+
+    <delete id="deleteTableById">
+        DELETE FROM TBL_TABLE_INFO WHERE ID=#{id}
+    </delete>
+
+    <select id="queryTableListByIds" resultType="Table">
+        SELECT * FROM TBL_TABLE_INFO WHERE ID IN
+        <foreach collection="array" open="(" close=")" separator="," item="id">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="queryAllTableName" resultType="string">
+        SELECT TABLE_NAME FROM USER_TABLES
+    </select>
+
+
+</mapper>

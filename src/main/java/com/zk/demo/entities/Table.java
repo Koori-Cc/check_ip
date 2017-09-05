@@ -7,6 +7,7 @@ import java.util.ResourceBundle;
  * Created by Koori_Cc on 2017/9/1.
  */
 public class Table {
+    private String id;
     private String tableName;
 
     private String field_id;
@@ -14,6 +15,14 @@ public class Table {
     private String field_port;
     private String field_status;
     private String field_type;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getField_type() {
         return field_type;
