@@ -31,8 +31,8 @@ public class TelnetUtils {
     }
 
     public static boolean telnet(String ip,int port) {
+        TelnetClient telnet = new TelnetClient("vt200");
         try{
-            TelnetClient telnet = new TelnetClient("vt200");
             telnet.setConnectTimeout(1000);// 连接超时1秒
             //telnet.setDefaultTimeout(3000);
             telnet.connect(ip, port);
@@ -41,6 +41,13 @@ public class TelnetUtils {
             e.printStackTrace();
             logger.info("telnet连接失败");
             return false;
+        }finally {
+            try {
+                telnet.disconnect();
+            } catch (IOException e) {
+                e.printStackTrace();
+                logger.info("telnet客户端关闭失败");
+            }
         }
     }
 
@@ -62,6 +69,7 @@ public class TelnetUtils {
             String ip = d.getIp();
             String s_port = d.getPort();
             Integer port = Integer.parseInt(s_port);
+            //测试是否能连接畅通
             boolean result = telnet(ip,port);
             if(result) {
                 d.setStatus(status_on);   //连接畅通

@@ -15,8 +15,6 @@ import org.apache.commons.collections.map.HashedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.Jedis;
-
-import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -49,7 +47,7 @@ public class DeviceServiceImpl implements DeviceService{
     private Timer timer;
 
     /**
-     * 类加载的时候初始化redis参数
+     * 创建类之前进行初始化
      */
     {
         String redis_ip = bundle.getString("redis.url");
@@ -143,6 +141,7 @@ public class DeviceServiceImpl implements DeviceService{
             }
         } catch (Exception e) {
             e.printStackTrace();
+            logger.info("更新数据出现异常");
         }
         return result;
     }
